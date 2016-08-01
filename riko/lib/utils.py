@@ -28,7 +28,7 @@ from json import loads
 
 from builtins import *
 from six.moves.urllib.parse import quote, urlparse
-from six.moves.urllib.request import urlopen
+from six.moves.urllib.request import Request, urlopen
 
 try:
     from urllib.error import URLError
@@ -360,10 +360,21 @@ def parse_rss(url, delay=0):
     response = None
 
     try:
-        response = urlopen(decode(url), context=context)
+        req = Request(
+            decode(url), 
+            context=context, 
+            headers={'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0'}
+        )
+        req.add_header(USER_AGENT, USER_AGENT_STRING)
+        response = urlopen(req)
     except TypeError:
         try:
-            response = urlopen(decode(url))
+            req = Request(
+                decode(url), 
+                headers={'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0'}
+            )
+            req.add_header(USER_AGENT, USER_AGENT_STRING)
+            response = urlopen(req)
         except (ValueError, URLError):
             parsed = rssparser.parse(url)
     except (ValueError, URLError):
